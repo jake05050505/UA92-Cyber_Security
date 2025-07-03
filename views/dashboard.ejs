@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>Dashboard</h1>
-    <p>Currently logged in as: <% if(username){username} %></p>
+    <p>Currently logged in as: <% if(username){username}else{window.location.href='login.html'} %></p>
     <p><a href="/login">Log Out</a></p>
 </body>
 
