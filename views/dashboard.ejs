@@ -3,10 +3,15 @@
 
 <head>
     <title>Dashboard</title>
+    <link rel="stylesheet" href="common.css">
 </head>
 <body>
     <h1>Dashboard</h1>
-    <p>Currently logged in as: <% if(username){username}else{window.location.href='login.html'} %></p>
+    <% if (typeof(username) !== 'undefined'){ %>
+        <p>Logged in as <%= username %></p>
+    <% } else { %>
+        <p>Not logged in.</p>
+    <% } %>
     <p><a href="/login">Log Out</a></p>
 </body>
 
