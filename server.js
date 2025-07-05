@@ -32,27 +32,6 @@ app.use(express.static(path.join(__dirname, 'static')));
 const users = [];
 
 // -- SIGN UP ROUTES
-app.get('/signup', (req, res) => {
-    res.render('signup');
-});
-
-app.post('/signup', (req, res) => {
-    const { username, password } = req.body;
-
-    // Basic checks
-    if (!username || !password) {
-        // Re-render signup with error
-        return res.render('signup', { error: 'Please fill in all fields.' });
-    };
-
-    const existingUser = users.find(u => u.username === username);
-
-    if (existingUser) {
-        return res.render('signup', { error: 'User already exists!' })
-    };
-
-});
-
 app.get('/', (req, res) => {
     res.render('login');
 });
@@ -75,6 +54,29 @@ app.post('/login', (req, res) => {
         res.redirect('/dashboard');
     }
 });
+
+app.get('/signup', (req, res) => {
+    res.render('signup');
+});
+
+app.post('/signup', (req, res) => {
+    const { username, password } = req.body;
+
+    // Basic checks
+    if (!username || !password) {
+        // Re-render signup with error
+        return res.render('signup', { error: 'Please fill in all fields.' });
+    };
+
+    const existingUser = users.find(u => u.username === username);
+
+    if (existingUser) {
+        return res.render('signup', { error: 'User already exists!' })
+    };
+
+});
+
+
 
 app.get('/dashboard', (req, res) => {
     res.render('dashboard');
