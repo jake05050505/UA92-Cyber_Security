@@ -7,12 +7,14 @@
 </head>
 <body>
     <h1>Dashboard</h1>
+    <% username = 'Admin' %>
     <% if (typeof(username) !== 'undefined'){ %>
-        <p>Logged in as <%= username %></p>
+        <p>Logged in as: </p><p class="ul"><%= username %></p>
+        <p><a href="/login">Log Out</a></p>
     <% } else { %>
         <p>Not logged in.</p>
     <% } %>
-    <p><a href="/login">Log Out</a></p>
+
 </body>
 
 </html>

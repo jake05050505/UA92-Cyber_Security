@@ -9,3 +9,7 @@ body {
     margin: 0;
     background-color: light-dark(white, rgb(40, 42, 54));
 }
+
+.ul {
+    text-decoration: underline;
+}
