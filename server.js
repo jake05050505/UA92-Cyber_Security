@@ -12,7 +12,7 @@ const PORT = 3000;
 // const db = mysql.createConnection({
 //     host: 'localhost',
 //     user: 'root',
-//     password: 'password', // in a production environment (not localhost) this should be a very strong password to prevent brute force attacks.
+//     password: 'password', // in a production environment (not localhost) this should be a strong password to prevent brute force attacks.
 //     database: 'accounts'
 // });
 
@@ -33,11 +33,12 @@ app.get('/signup', (req, res) => {
 });
 
 app.post('/signup', (req, res) => {
-    const { username, password } = req.body;
+    const { email, username, password } = req.body;
 
-    if(!username || !password){
-        res.status(400).send("Please fill all fields")
-    }
+    if(!username || !password || !email){
+        res.status(400).send("Please fill all fields");
+    };
+    db.query(`select * from users where username = ${username} and password = ${password} and email = ${email}`) // unsafe
 
 });
 
