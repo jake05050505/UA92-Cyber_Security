@@ -8,13 +8,13 @@ const app = express();
 const PORT = 3000;
 
 // database credentials
-const mysql = require('mysql2');
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'password', // in a production environment (not localhost) this should be a very strong password to prevent brute force attacks.
-    database: 'accounts'
-});
+// const mysql = require('mysql2');
+// const db = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: 'password', // in a production environment (not localhost) this should be a very strong password to prevent brute force attacks.
+//     database: 'accounts'
+// });
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -24,6 +24,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'static')));
 
 // Routes
+app.get('/index', (req, res) => {
+    res.render('index')
+})
+
 app.get('/signup', (req, res) => {
     res.render('signup');
 });
@@ -59,10 +63,10 @@ app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error('Database connection failed: ' + err.stack);
-        return;
-    };
-    console.log('Connected to the MySQL database.');
-});
+// db.connect((err) => {
+//     if (err) {
+//         console.error('Database connection failed: ' + err.stack);
+//         return;
+//     };
+//     console.log('Connected to the MySQL database.');
+// });
