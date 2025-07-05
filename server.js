@@ -8,13 +8,13 @@ const app = express();
 const PORT = 3000;
 
 // database credentials
-// const mysql = require('mysql2');
-// const db = mysql.createConnection({
-//     host: 'localhost',
-//     user: 'root',
-//     password: 'password', // in a production environment (not localhost) this should be a strong password to prevent brute force attacks.
-//     database: 'accounts'
-// });
+const mysql = require('mysql2');
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'password', // in a production environment (not localhost) this should be a strong password to prevent brute force attacks.
+    database: 'accounts'
+});
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -36,10 +36,11 @@ app.post('/signup', (req, res) => {
     const { email, username, password } = req.body;
 
     if(!username || !password || !email){
-        res.status(400).send("Please fill all fields");
+        return res.status(400).render('signup', { error: "Please fill all fields" });
     };
-    db.query(`select * from users where username = ${username} and password = ${password} and email = ${email}`) // unsafe
 
+    db.query(`insert into users ${email},${username},${password}`);
+    res.render('signup', { dbres : [email,username,password] });
 });
 
 app.get('/', (req, res) => {
@@ -51,9 +52,11 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
+    const { email, username, password } = req.body;
 
-    
+    if(!username || !password || !email){
+        res.status(400).send("PLease fill all fields")
+    }
 });
 
 app.get('/dashboard', (req, res) => {
@@ -64,10 +67,10 @@ app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
 
-// db.connect((err) => {
-//     if (err) {
-//         console.error('Database connection failed: ' + err.stack);
-//         return;
-//     };
-//     console.log('Connected to the MySQL database.');
-// });
+db.connect((err) => {
+    if (err) {
+        console.error('Database connection failed: ' + err.stack);
+        return;
+    };
+    console.log('Connected to the MySQL database.');
+});
