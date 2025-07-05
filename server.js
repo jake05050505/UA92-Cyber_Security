@@ -18,18 +18,12 @@ const db = mysql.createConnection({
     database: 'accounts'  // The database you created for this project
 });
 
-//Sets the view engine to EJS
-app.set('view engine', 'ejs');
-//Make sure views are served from the "views" folder that we created
-app.set('views', path.join(__dirname, 'views'));
-
+app.set('view engine', 'ejs'); // Sets the view engine to EJS
+app.set('views', path.join(__dirname, 'views')); // Make sure views are served from the "views" folder that we created
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'static')));
-
-
-const users = [];
 
 // -- SIGN UP ROUTES
 app.get('/', (req, res) => {
@@ -43,16 +37,7 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
-    const foundUser = users.find(u => u.username === username && u.password === password);
-
-    //We then run this message if the user is not found.
-    if (!foundUser) {
-        return res.render('login', { error: 'Invalid username or password.' });
-    } else {
-        //Otherwise we log them in and direct them the to the dashboard. 
-        console.log(`User logged in: ${username}`);
-        res.redirect('/dashboard');
-    }
+    
 });
 
 app.get('/signup', (req, res) => {
@@ -62,21 +47,9 @@ app.get('/signup', (req, res) => {
 app.post('/signup', (req, res) => {
     const { username, password } = req.body;
 
-    // Basic checks
-    if (!username || !password) {
-        // Re-render signup with error
-        return res.render('signup', { error: 'Please fill in all fields.' });
-    };
-
-    const existingUser = users.find(u => u.username === username);
-
-    if (existingUser) {
-        return res.render('signup', { error: 'User already exists!' })
-    };
+    
 
 });
-
-
 
 app.get('/dashboard', (req, res) => {
     res.render('dashboard');
