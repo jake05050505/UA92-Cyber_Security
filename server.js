@@ -39,8 +39,11 @@ app.post('/signup', (req, res) => {
         return res.status(400).render('signup', { error: "Please fill all fields" });
     };
 
-    db.query(`insert into users ${email},${username},${password}`);
-    res.render('signup', { dbres : [email,username,password] });
+    console.log(`${email},${username},${password}`)
+    const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
+    db.query(query);
+
+    res.redirect('dashboard')
 });
 
 app.get('/', (req, res) => {
@@ -55,7 +58,7 @@ app.post('/login', (req, res) => {
     const { email, username, password } = req.body;
 
     if(!username || !password || !email){
-        res.status(400).send("PLease fill all fields")
+        res.status(400).send("Please fill all fields")
     }
 });
 
