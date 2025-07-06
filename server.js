@@ -35,15 +35,18 @@ app.get('/signup', (req, res) => {
 app.post('/signup', (req, res) => {
     const { email, username, password } = req.body;
 
-    if(!username || !password || !email){
+    if(!email || !username || !password){
         return res.status(400).render('signup', { error: "Please fill all fields" });
     };
+    if(email.length > 64 || username.length > 32 || password.length > 32){
+        return res.status(400).render('signup', { error: "Email/Username/Password too long, please try again"}); // Should only show up if the user edits the html to remove the maxlength attribute
+    };
 
-    console.log(`${email},${username},${password}`)
+    console.log(`${email},${username},${password}`);
     const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
     db.query(query);
 
-    res.redirect('dashboard')
+    res.redirect('dashboard');
 });
 
 app.get('/', (req, res) => {
@@ -55,9 +58,9 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    const { email, username, password } = req.body;
+    const { username, password } = req.body;
 
-    if(!username || !password || !email){
+    if(!username || !password){
         res.status(400).send("Please fill all fields")
     }
 });
