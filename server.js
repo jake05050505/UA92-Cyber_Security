@@ -25,7 +25,7 @@ app.use(express.static(path.join(__dirname, "static")));
 
 // Routes
 app.get("/index", (req, res) => {
-    res.render("index")
+    res.render("index");
 })
 
 app.get("/signup", (req, res) => {
@@ -42,7 +42,7 @@ app.post("/signup", (req, res) => {
         return res.status(400).render("signup", { error: "Email/Username/Password too long, please try again"}); // Should only show up if the user edits the html to remove the maxlength attribute
     }
     if (!email.includes('@') || !email.includes('.')){
-        return res.status(400).render("signup")
+        return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
     }
 
     console.log(`${email},${username},${password}`);
@@ -64,10 +64,11 @@ app.post("/login", (req, res) => {
     const { username, password } = req.body;
 
     if(!username || !password){
-        res.status(400).send("Please fill all fields");
+        res.status(400).render("login", { error: "Please fill all fields" });
     }
 
-    found_password = db.query("Select password from `users` where username = " + username);
+    const found_password = db.query("Select password from `users` where username = " + username);
+    console.log(found_password, password);
     if (password == found_password){
         res.redirect("dashboard");
     }
