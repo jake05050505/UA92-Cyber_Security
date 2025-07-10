@@ -25,11 +25,11 @@ app.use(express.static(path.join(__dirname, "static")));
 
 // Routes
 app.get("/index", (req, res) => {
-    res.render("index");
+    return res.render("index");
 })
 
 app.get("/signup", (req, res) => {
-    res.render("signup");
+    return res.render("signup");
 });
 
 app.post("/signup", (req, res) => {
@@ -52,7 +52,7 @@ app.post("/signup", (req, res) => {
         console.log(results)
     });
 
-    res.status(200).redirect("dashboard");
+    return res.status(200).redirect("dashboard");
 });
 
 app.get('/', (req, res) => {
@@ -60,14 +60,14 @@ app.get('/', (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-    res.render("login");
+    return res.render("login");
 });
 
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
 
     if(!username || !password){
-        res.status(400).render("/login", { error: "Please fill all fields" });
+        return res.status(400).render("login", { error: "Please fill all fields" });
     }
 
     function dbquery(username){
@@ -83,28 +83,19 @@ app.post("/login", (req, res) => {
         const stored_password = result[0].password;
         console.log(stored_password);
 
-        console.log(password == stored_password);
+        console.log(`password correct? ${password == stored_password}`);
         if(password == stored_password){
-            res.redirect(`/dashboard?username=${username}`);
+            return res.redirect(`/dashboard?username=${username}`);
         } else{
-            res.status(401).render('login', { error: "Invalid username or password" });
+            return res.status(200).render("login", { error: "Invalid username or password" });
         }
     });
-    // async function queryresult(){
-    //     const stored_password = await dbquery(username);
-    //     return stored_password;
-    // }
-    // const stored_password = queryresult(username).then(result => {
-    //     return result[0].password;
-    // });
-    // console.log(stored_password);
-
-    
 });
 
 app.get("/dashboard", (req, res) => {
-    const username = req.query.username;
-    res.render("dashboard", { username });
+    const username = req.query.username || undefined;
+    console.log("Username from query:", req.query.username);
+    return res.render("dashboard", { username });
 });
 
 app.listen(PORT, () => {
