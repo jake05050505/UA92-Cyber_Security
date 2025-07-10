@@ -47,9 +47,12 @@ app.post("/signup", (req, res) => {
 
     console.log(`${email},${username},${password}`);
     const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
-    db.query(query);
+    db.query(query, (err, results) => {
+        if(err){throw err;}
+        console.log(results)
+    });
 
-    res.redirect("dashboard");
+    res.status(200).redirect("dashboard");
 });
 
 app.get('/', (req, res) => {
@@ -64,18 +67,44 @@ app.post("/login", (req, res) => {
     const { username, password } = req.body;
 
     if(!username || !password){
-        res.status(400).render("login", { error: "Please fill all fields" });
+        res.status(400).render("/login", { error: "Please fill all fields" });
     }
 
-    const found_password = db.query("Select password from `users` where username = " + username);
-    console.log(found_password, password);
-    if (password == found_password){
-        res.redirect("dashboard");
+    function dbquery(username){
+        const query = "select `password` from `users` where `username` = '" + username + "'";
+            return new Promise((resolve) => {
+                db.query(query, (err, result) => {
+                    if(err){throw err;}
+                resolve(result);
+            });
+        });
     }
+    dbquery(username).then(result => {
+        const stored_password = result[0].password;
+        console.log(stored_password);
+
+        console.log(password == stored_password);
+        if(password == stored_password){
+            res.redirect(`/dashboard?username=${username}`);
+        } else{
+            res.status(401).render('login', { error: "Invalid username or password" });
+        }
+    });
+    // async function queryresult(){
+    //     const stored_password = await dbquery(username);
+    //     return stored_password;
+    // }
+    // const stored_password = queryresult(username).then(result => {
+    //     return result[0].password;
+    // });
+    // console.log(stored_password);
+
+    
 });
 
 app.get("/dashboard", (req, res) => {
-    res.render("dashboard");
+    const username = req.query.username;
+    res.render("dashboard", { username });
 });
 
 app.listen(PORT, () => {
