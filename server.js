@@ -13,7 +13,7 @@ const db = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "password", // in a production environment (not localhost) this should be a strong password to prevent brute force attacks.
-    database: "accounts"
+    database: "secure"
 });
 
 app.set("view engine", "ejs");
@@ -38,7 +38,7 @@ app.post("/signup", (req, res) => {
     if(!email || !username || !password){
         return res.status(400).render("signup", { error: "Please fill all fields" });
     }
-    if(email.length > 64 || username.length > 32 || password.length > 32){
+    if(email.length > 64 || username.length > 32 || password.length > 64){
         return res.status(400).render("signup", { error: "Email/Username/Password too long, please try again"}); // Should only show up if the user edits the html to remove the maxlength attribute
     }
     if (!email.includes('@') || !email.includes('.')){
@@ -46,8 +46,8 @@ app.post("/signup", (req, res) => {
     }
 
     console.log(`${email},${username},${password}`);
-    const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
-    db.query(query, (err, results) => {
+    const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES (?,?,?)";
+    db.query(query, [email, username, password], (err, results) => {
         if(err){throw err;}
         console.log(results)
     });
@@ -71,9 +71,9 @@ app.post("/login", (req, res) => {
     }
 
     function dbquery(username){
-        const query = "select `password` from `users` where `username` = '" + username + "'";
+        const query = "select `password` from `users` where `username` = ?";
             return new Promise((resolve) => {
-                db.query(query, (err, result) => {
+                db.query(query, [username], (err, result) => {
                     if(err){throw err;}
                 resolve(result);
             });
