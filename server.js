@@ -3,9 +3,18 @@
 
 const express = require("express");
 const path = require("path");
+const { rateLimit } = require("express-rate-limit"); // edited from https://www.npmjs.com/package/express-rate-limit
 
 const app = express();
 const PORT = 3000;
+
+// Limiter config - copied from https://www.npmjs.com/package/express-rate-limit, comments edited
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 mins
+	limit: 100, // user can make 15 requests in 15 minute window (1 request/min)
+	// standardHeaders: 'draft-8',
+	// legacyHeaders: false,
+});
 
 // database credentials
 const mysql = require("mysql2");
@@ -22,6 +31,7 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
+app.use(limiter) // copied from https://www.npmjs.com/package/express-rate-limit
 
 // Routes
 app.get("/index", (req, res) => {
@@ -49,7 +59,6 @@ app.post("/signup", (req, res) => {
     const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES (?,?,?)";
     db.query(query, [email, username, password], (err, results) => {
         if(err){throw err;}
-        console.log(results)
     });
 
     return res.status(200).redirect("dashboard");
@@ -81,9 +90,8 @@ app.post("/login", (req, res) => {
     }
     dbquery(username).then(result => {
         const stored_password = result[0].password;
-        console.log(stored_password);
+        
 
-        console.log(`password correct? ${password == stored_password}`);
         if(password == stored_password){
             return res.redirect(`/dashboard?username=${username}`);
         } else{
@@ -94,7 +102,6 @@ app.post("/login", (req, res) => {
 
 app.get("/dashboard", (req, res) => {
     const username = req.query.username || undefined;
-    console.log("Username from query:", req.query.username);
     return res.render("dashboard", { username });
 });
 
