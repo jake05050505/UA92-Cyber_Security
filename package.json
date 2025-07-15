@@ -3,9 +3,10 @@
     "ej": "^1.0.4",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "express-rate-limit": "^7.5.1",
     "mysql2": "^3.14.0"
   },
-  "name": "my-express-sql-app",
+  "name": "express-sql-app",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
