@@ -23,27 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
 
-function user_exists(username, email = null){ // : bool_int
-    return new Promise((resolve, reject) => {
-        let query
-        if(!email){
-            query = "select exists(select `username` from `users` where `username` = '" + username + "') as userexists;";
-        } else {
-            query = "select exists(select `email` from `users` where `email` = '" + email + "') as emailexists, exists(select `username` from `users` where `username` = '" + username + "') as userexists";
-        }
-
-        db.query(query, (err, result) => {
-            if(err){return reject(err);}
-            if(!email){
-                resolve(result[0].userexists);
-            }
-            resolve(result[0].userexists || result[0].emailexists);
-        });
-    });
-
-}
-
-// #region Routes
+// Routes
 app.get("/index", (req, res) => {
     return res.render("index");
 })
@@ -52,23 +32,9 @@ app.get("/signup", (req, res) => {
     return res.render("signup");
 });
 
-app.get('/', (req, res) => {
-    return res.render("login");
-});
-
-app.get("/login", (req, res) => {
-    return res.render("login");
-});
-// #endregion
-app.get("/dashboard", (req, res) => {
-    const username = req.query.username || undefined;
-    console.log("Username from query:", username);
-    return res.render("dashboard", { username });
-});
-
 app.post("/signup", (req, res) => {
     const { email, username, password } = req.body;
-    // #region input validation
+
     if(!email || !username || !password){
         return res.status(400).render("signup", { error: "Please fill all fields" });
     }
@@ -78,78 +44,59 @@ app.post("/signup", (req, res) => {
     if (!email.includes('@') || !email.includes('.')){
         return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
     }
-    // #endregion
-    
-    user_exists(username, email).then((result) => {
-        if(result==true){
-            return res.status(200).render("signup", { error: "This username/email already exists." })
-        }
-        else{
-            const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
-            db.query(query, (err, results) => {
-                if(err){throw err;}
-                console.log(results)
-            });
 
-            return res.status(200).redirect("dashboard");
-        
-        }
+    console.log(`${email},${username},${password}`);
+    const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
+    db.query(query, (err, results) => {
+        if(err){throw err;}
+        console.log(results)
     });
 
+    return res.status(200).redirect("dashboard");
 });
 
+app.get('/', (req, res) => {
+    res.render("login");
+});
+
+app.get("/login", (req, res) => {
+    return res.render("login");
+});
 
 app.post("/login", (req, res) => {
-    let username = req.body['username'];
-    const password = req.body['password'];
-    
-    function fetchusername(username){ // : str
-        const query = "select `username` from `users` where `username` = '" + username + "';";
-        return new Promise((resolve,reject) => {
-            db.query(query, (err, result) => {
-                if(err){return reject(err);}
-                resolve(result);
-            });
-        });
-    }
-
-    function fetchpassword(username){ // : str
-        const query = "select `password` from `users` where `username` = '" + username + "';";
-        return new Promise((resolve,reject) => {
-            db.query(query, (err, result) => {
-                if(err){return reject(err);}
-                resolve(result);
-            });
-        });
-    }
+    const { username, password } = req.body;
 
     if(!username || !password){
         return res.status(400).render("login", { error: "Please fill all fields" });
     }
 
-    user_exists(username).then(result => {
-        if(result == 0){
-            return res.status(200).render("login", { error : "Invalid username or password" });
-        }
-        else{
-            fetchusername(username).then((result) => {
-                console.log(result);
-                username = result[0].username;
-                fetchpassword(username).then(result => {
-                    const stored_password = result[0].password;
-        
-                    if(password == stored_password){
-                        return res.redirect(`/dashboard?username=${username}`);
-                    } else{
-                        return res.status(200).render("login", { error: "Invalid username or password" });
-                    }
-                });
+    function dbquery(username){
+        const query = "select `password` from `users` where `username` = '" + username + "'";
+            return new Promise((resolve) => {
+                db.query(query, (err, result) => {
+                    if(err){throw err;}
+                resolve(result);
             });
+        });
+    }
+    dbquery(username).then(result => {
+        const stored_password = result[0].password;
+        console.log(stored_password);
+
+        console.log(`password correct? ${password == stored_password}`);
+        if(password == stored_password){
+            return res.redirect(`/dashboard?username=${username}`);
+        } else{
+            return res.status(200).render("login", { error: "Invalid username or password" });
         }
     });
-
 });
 
+app.get("/dashboard", (req, res) => {
+    const username = req.query.username || undefined;
+    console.log("Username from query:", req.query.username);
+    return res.render("dashboard", { username });
+});
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
