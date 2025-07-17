@@ -46,23 +46,15 @@ app.post("/signup", (req, res) => {
         return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
     }
 
-    const checkUserQuery = 'SELECT * FROM users WHERE username = "' + username + '";';
-    const findAll = 'SELECT * FROM users';
+    const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
 
-    db.query(findAll, (err, result) => {
-        console.log(result);
-    });
-
-    db.query(checkUserQuery, username, (err, result) => {
-        if(result.length > 0){
-            console.log("A signup attempt was made with a duplicate username/email");
+    db.query(insertUserQuery, (err) => {
+        if (err && err.code === "ER_DUP_ENTRY") {
+            console.log("Duplicate username or email");
             return res.status(400).render("signup", { error: "A user with this username/email already exists" });
-        }
-        const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
-        db.query(insertUserQuery, (err) => {
-            if(err){throw err;}
-            return res.status(200).redirect("/dashboard");
-        });
+        } else if(err){throw err;}
+
+        return res.status(200).redirect(`/dashboard?username=${username}`);
     });
 
 });
@@ -76,37 +68,37 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-    const { username, password } = req.body;
+    let username = req.body.username;
+    const password = req.body.password;
 
     if(!username || !password){
         return res.status(400).render("login", { error: "Please fill all fields" });
     }
 
-    function dbquery(username){
-        const query = "select `password` from `users` where `username` = '" + username + "'";
-            return new Promise((resolve) => {
-                db.query(query, (err, result) => {
-                    if(err){throw err;}
-                resolve(result);
-            });
-        });
-    }
-    dbquery(username).then(result => {
-        const stored_password = result[0].password;
-        console.log(stored_password);
+    const checkUserQuery = "select * from users where username = '" + username + "';";
+    db.query(checkUserQuery, (err, result) => {
+        if(err){throw err;}
+        
+        if (result.length == 0){
+            return res.status(200).render("login", { error: "Invalid username or password" });
+        }
 
-        console.log(`password correct? ${password == stored_password}`);
+        username = result[0].username
+        stored_password = result[0].password;
+
         if(password == stored_password){
-            return res.redirect(`/dashboard?username=${username}`);
-        } else{
+            return res.redirect(`/dashboard?username=${username}`)
+        }
+        else{
             return res.status(200).render("login", { error: "Invalid username or password" });
         }
     });
+
+
 });
 
 app.get("/dashboard", (req, res) => {
     const username = req.query.username || undefined;
-    console.log("Username from query:", req.query.username);
     return res.render("dashboard", { username });
 });
 
@@ -120,5 +112,4 @@ db.connect((err) => {
         return;
     }
     console.log("Connected to the MySQL database.");
-    console.log('\n')
 });
