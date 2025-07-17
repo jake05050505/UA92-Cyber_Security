@@ -62,9 +62,9 @@ app.post("/signup", (req, res) => {
         return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
     }
 
-    const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
+    const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES (?,?,?)";
 
-    db.query(insertUserQuery, (err) => {
+    db.query(insertUserQuery, [email, username, password], (err) => {
         if (err && err.code === "ER_DUP_ENTRY") {
             console.log("Duplicate username or email");
             return res.status(400).render("signup", { error: "A user with this username/email already exists" });
@@ -83,19 +83,20 @@ app.post("/login", (req, res) => {
         return res.status(400).render("login", { error: "Please fill all fields" });
     }
 
-    const checkUserQuery = "select * from users where username = '" + username + "';";
-    db.query(checkUserQuery, (err, result) => {
+    const checkUserQuery = "select username, password from users where username = ?;";
+    
+    db.query(checkUserQuery, username, (err, result) => {
         if(err){throw err;}
         
         if (result.length == 0){
             return res.status(200).render("login", { error: "Invalid username or password" });
         }
 
-        username = result[0].username
+        username = result[0].username;
         stored_password = result[0].password;
 
         if(password == stored_password){
-            return res.redirect(`/dashboard?username=${username}`)
+            return res.redirect(`/dashboard?username=${username}`);
         }
         else{
             return res.status(200).render("login", { error: "Invalid username or password" });
