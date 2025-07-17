@@ -64,12 +64,36 @@ app.post("/signup", (req, res) => {
         return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
     }
 
-    console.log(`${email},${username},${password}`);
-    const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
-    db.query(query, (err, results) => {
-        if(err){throw err;}
-        console.log(results)
+const checkUserQuery = 'SELECT * FROM users WHERE username = ?'
+const findAll = 'SELECT * FROM users';
+
+db.query(findAll, (err, result) => {
+    console.log(result);
+});
+
+db.query(checkUserQuery, 'tim', (err, result) => {
+    if(result.length > 0){
+        console.log('t+ USERNAME tAKEN ');
+        return res.status(400).render("signup", { error: "Username Taken" });
+    }else{
+        console.log("username not found");
+    }
+})
+
+    usercheck(username, email).then(result => {
+        if(result!==false){
+            return res.render("signup", { error: "A user with that username or email already exists" })
+
+        } else{
+            console.log(`Attempting to insert user: ${email},${username},${password}`);
+            const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
+            db.query(query, (err) => {
+                if(err){throw err;}
+                console.log(`User creation successful`);
+            });
+        }
     });
+
 
     return res.status(200).redirect("dashboard");
 });
@@ -127,4 +151,5 @@ db.connect((err) => {
         return;
     }
     console.log("Connected to the MySQL database.");
+    console.log('\n')
 });
