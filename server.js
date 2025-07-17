@@ -24,6 +24,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
 
+function usercheck(username, email = null){
+    if(email){
+        const query = 
+    }
+    return new Promise((resolve) => {
+
+    });
+}
+
 // Routes
 app.get("/index", (req, res) => {
     return res.render("index");
