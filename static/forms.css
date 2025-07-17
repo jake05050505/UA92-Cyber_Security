@@ -4,8 +4,8 @@ body {
 }
 
 #idx {
-    display: block;
-    justify-content: normal;
+    display: block !important;
+    justify-content: normal !important;
 }
 
 form {
