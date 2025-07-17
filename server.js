@@ -1,4 +1,4 @@
-// This file is built using Tim Edwards' notion documents found at:
+// This file is built using Tim Edwards' notion documents as a guide --found at:
 // (https://dull-ceres-c2a.notion.site/Cyber-Security-Risk-Extra-Material-1aa408bc87ac80c5a62be0bc3ee23023)
 
 // #region configs
