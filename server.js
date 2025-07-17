@@ -1,7 +1,12 @@
 // This file is built using Tim Edwards' notion documents found at:
 // (https://dull-ceres-c2a.notion.site/Cyber-Security-Risk-Extra-Material-1aa408bc87ac80c5a62be0bc3ee23023)
+<<<<<<< HEAD
 // git branch master
+=======
+// git branch unsafe-final
+>>>>>>> unsafe-final
 
+// #region configs
 const express = require("express");
 const path = require("path");
 
@@ -23,16 +28,32 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
+// #endregion
 
-// Routes
+// #region GET Routes
 app.get("/index", (req, res) => {
     return res.render("index");
-})
+});
 
 app.get("/signup", (req, res) => {
     return res.render("signup");
 });
 
+app.get('/', (req, res) => {
+    res.render("login");
+});
+
+app.get("/login", (req, res) => {
+    return res.render("login");
+});
+
+app.get("/dashboard", (req, res) => {
+    const username = req.query.username || undefined;
+    return res.render("dashboard", { username });
+});
+// #endregion
+
+// #region POST Routes
 app.post("/signup", (req, res) => {
     const { email, username, password } = req.body;
 
@@ -46,59 +67,50 @@ app.post("/signup", (req, res) => {
         return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
     }
 
-    console.log(`${email},${username},${password}`);
-    const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
-    db.query(query, (err, results) => {
-        if(err){throw err;}
-        console.log(results)
+    const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
+
+    db.query(insertUserQuery, (err) => {
+        if (err && err.code === "ER_DUP_ENTRY") {
+            console.log("Duplicate username or email");
+            return res.status(400).render("signup", { error: "A user with this username/email already exists" });
+        } else if(err){throw err;}
+
+        return res.status(200).redirect(`/dashboard?username=${username}`);
     });
 
-    return res.status(200).redirect("dashboard");
-});
-
-app.get('/', (req, res) => {
-    res.render("login");
-});
-
-app.get("/login", (req, res) => {
-    return res.render("login");
 });
 
 app.post("/login", (req, res) => {
-    const { username, password } = req.body;
+    let username = req.body.username;
+    const password = req.body.password;
 
     if(!username || !password){
         return res.status(400).render("login", { error: "Please fill all fields" });
     }
 
-    function dbquery(username){
-        const query = "select `password` from `users` where `username` = '" + username + "'";
-            return new Promise((resolve) => {
-                db.query(query, (err, result) => {
-                    if(err){throw err;}
-                resolve(result);
-            });
-        });
-    }
-    dbquery(username).then(result => {
-        const stored_password = result[0].password;
-        console.log(stored_password);
+    const checkUserQuery = "select * from users where username = '" + username + "';";
+    db.query(checkUserQuery, (err, result) => {
+        if(err){throw err;}
+        
+        if (result.length == 0){
+            return res.status(200).render("login", { error: "Invalid username or password" });
+        }
 
-        console.log(`password correct? ${password == stored_password}`);
+        username = result[0].username
+        stored_password = result[0].password;
+
         if(password == stored_password){
-            return res.redirect(`/dashboard?username=${username}`);
-        } else{
+            return res.redirect(`/dashboard?username=${username}`)
+        }
+        else{
             return res.status(200).render("login", { error: "Invalid username or password" });
         }
     });
-});
 
-app.get("/dashboard", (req, res) => {
-    const username = req.query.username || undefined;
-    console.log("Username from query:", req.query.username);
-    return res.render("dashboard", { username });
 });
+// #endregion
 
+// #region Connections
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
@@ -110,3 +122,5 @@ db.connect((err) => {
     }
     console.log("Connected to the MySQL database.");
 });
+
+// #endregion
