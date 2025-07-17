@@ -1,7 +1,8 @@
 // This file is built using Tim Edwards' notion documents found at:
 // (https://dull-ceres-c2a.notion.site/Cyber-Security-Risk-Extra-Material-1aa408bc87ac80c5a62be0bc3ee23023)
-// git branch unsafe-wip-3
+// git branch unsafe-final
 
+// #region configs
 const express = require("express");
 const path = require("path");
 
@@ -23,16 +24,32 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
+// #endregion
 
-// Routes
+// #region GET Routes
 app.get("/index", (req, res) => {
     return res.render("index");
-})
+});
 
 app.get("/signup", (req, res) => {
     return res.render("signup");
 });
 
+app.get('/', (req, res) => {
+    res.render("login");
+});
+
+app.get("/login", (req, res) => {
+    return res.render("login");
+});
+
+app.get("/dashboard", (req, res) => {
+    const username = req.query.username || undefined;
+    return res.render("dashboard", { username });
+});
+// #endregion
+
+// #region POST Routes
 app.post("/signup", (req, res) => {
     const { email, username, password } = req.body;
 
@@ -57,14 +74,6 @@ app.post("/signup", (req, res) => {
         return res.status(200).redirect(`/dashboard?username=${username}`);
     });
 
-});
-
-app.get('/', (req, res) => {
-    res.render("login");
-});
-
-app.get("/login", (req, res) => {
-    return res.render("login");
 });
 
 app.post("/login", (req, res) => {
@@ -94,14 +103,10 @@ app.post("/login", (req, res) => {
         }
     });
 
-
 });
+// #endregion
 
-app.get("/dashboard", (req, res) => {
-    const username = req.query.username || undefined;
-    return res.render("dashboard", { username });
-});
-
+// #region Connections
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
@@ -113,3 +118,5 @@ db.connect((err) => {
     }
     console.log("Connected to the MySQL database.");
 });
+
+// #endregion
