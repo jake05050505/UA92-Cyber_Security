@@ -58,11 +58,13 @@ app.post("/signup", (req, res) => {
             console.log("A signup attempt was made with a duplicate username/email");
             return res.status(400).render("signup", { error: "A user with this username/email already exists" });
         }
+        const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
+        db.query(insertUserQuery, (err) => {
+            if(err){throw err;}
+            return res.status(200).redirect("/dashboard");
+        });
     });
 
-    db.query("insert into users(username, email, password) values ()")
-
-    return res.status(200).redirect("/dashboard");
 });
 
 app.get('/', (req, res) => {

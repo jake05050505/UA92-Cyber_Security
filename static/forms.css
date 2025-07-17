@@ -3,6 +3,11 @@ body {
     justify-content: center;
 }
 
+#idx {
+    display: block;
+    justify-content: normal;
+}
+
 form {
     position: relative;
     border-radius: 0.7em;
