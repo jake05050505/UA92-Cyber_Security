@@ -1,6 +1,6 @@
 // This file is built using Tim Edwards' notion documents found at:
 // (https://dull-ceres-c2a.notion.site/Cyber-Security-Risk-Extra-Material-1aa408bc87ac80c5a62be0bc3ee23023)
-// git branch unsafe-wip-2
+// git branch unsafe-wip-3
 
 const express = require("express");
 const path = require("path");
@@ -24,24 +24,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
 
-function usercheck(username, email = null){ // : bool
-    console.log(`usercheck.username = ${username}, usercheck.email = ${email}`)
-    let query
-    if(!email){
-        query = "select exists(select `username` from `users` where `username` = '" + username + "') as userexists;";
-    } else{
-        query = "select exists(select `email` from `users` where `email` = '" + email + "') as emailexists, exists(select `username` from `users` where `username` = '" + username + "') as userexists";
-    }
-    return new Promise((resolve, reject) => {
-        console.log(`query = ${query}`)
-        db.query(query, (err,results) => {
-            if(err){return reject(err);}
-            console.log(`user or email exists = ${results[0].userexists || results[0].emailexists}`);
-            resolve(results[0].userexists || results[0].emailexists);
-        });
-    });
-}
-
 // Routes
 app.get("/index", (req, res) => {
     return res.render("index");
@@ -64,38 +46,23 @@ app.post("/signup", (req, res) => {
         return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
     }
 
-const checkUserQuery = 'SELECT * FROM users WHERE username = ?'
-const findAll = 'SELECT * FROM users';
+    const checkUserQuery = 'SELECT * FROM users WHERE username = "' + username + '";';
+    const findAll = 'SELECT * FROM users';
 
-db.query(findAll, (err, result) => {
-    console.log(result);
-});
+    db.query(findAll, (err, result) => {
+        console.log(result);
+    });
 
-db.query(checkUserQuery, 'tim', (err, result) => {
-    if(result.length > 0){
-        console.log('t+ USERNAME tAKEN ');
-        return res.status(400).render("signup", { error: "Username Taken" });
-    }else{
-        console.log("username not found");
-    }
-})
-
-    usercheck(username, email).then(result => {
-        if(result!==false){
-            return res.render("signup", { error: "A user with that username or email already exists" })
-
-        } else{
-            console.log(`Attempting to insert user: ${email},${username},${password}`);
-            const query = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
-            db.query(query, (err) => {
-                if(err){throw err;}
-                console.log(`User creation successful`);
-            });
+    db.query(checkUserQuery, username, (err, result) => {
+        if(result.length > 0){
+            console.log("A signup attempt was made with a duplicate username/email");
+            return res.status(400).render("signup", { error: "A user with this username/email already exists" });
         }
     });
 
+    db.query("insert into users(username, email, password) values ()")
 
-    return res.status(200).redirect("dashboard");
+    return res.status(200).redirect("/dashboard");
 });
 
 app.get('/', (req, res) => {
