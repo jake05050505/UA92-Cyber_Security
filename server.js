@@ -1,5 +1,6 @@
 // This file is built using Tim Edwards' notion documents found at:
 // (https://dull-ceres-c2a.notion.site/Cyber-Security-Risk-Extra-Material-1aa408bc87ac80c5a62be0bc3ee23023)
+// git branch master
 
 const express = require("express");
 const path = require("path");
@@ -22,6 +23,10 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
+
+function checkuser(username, email = null){
+    return new Promise((resolve, reject))
+}
 
 // Routes
 app.get("/index", (req, res) => {
