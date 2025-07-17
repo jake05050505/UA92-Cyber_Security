@@ -16,6 +16,7 @@
 </head>
 
 <body>
+    <%- include("partials/index.ejs") %>
     <main>
 
         <form name="login" action="/login" method="POST">
@@ -28,7 +29,8 @@
             <button type="submit">Log in</button>
             <p> or <a href="/signup">Create an Account</a></p>
         </form>
-        <a href="index">index</a>
+
+        <a id="idx" href="index">index</a>
     </main>
 </body>
 
