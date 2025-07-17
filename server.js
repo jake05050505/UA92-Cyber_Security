@@ -24,12 +24,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
 
-function usercheck(username, email = null){
-    if(email){
-        const query = 
+function usercheck(username, email = null){ // : bool
+    console.log(`usercheck.username = ${username}, usercheck.email = ${email}`)
+    let query
+    if(!email){
+        query = "select exists(select `username` from `users` where `username` = '" + username + "') as userexists;";
+    } else{
+        query = "select exists(select `email` from `users` where `email` = '" + email + "') as emailexists, exists(select `username` from `users` where `username` = '" + username + "') as userexists";
     }
-    return new Promise((resolve) => {
-
+    return new Promise((resolve, reject) => {
+        console.log(`query = ${query}`)
+        db.query(query, (err,results) => {
+            if(err){return reject(err);}
+            console.log(`user or email exists = ${results[0].userexists || results[0].emailexists}`);
+            resolve(results[0].userexists || results[0].emailexists);
+        });
     });
 }
 
