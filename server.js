@@ -8,6 +8,14 @@ const path = require("path");
 const app = express();
 const PORT = 3000;
 
+// Limiter config - copied from https://www.npmjs.com/package/express-rate-limit, comments edited
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 mins
+	limit: 100, // user can make 100 requests in 15 minute window
+	// standardHeaders: 'draft-8',
+	// legacyHeaders: false,
+});
+
 // database credentials
 const mysql = require("mysql2");
 const db = mysql.createConnection({
