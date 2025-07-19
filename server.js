@@ -4,6 +4,7 @@
 // #region configs
 const express = require("express");
 const path = require("path");
+const session = require("express-session");
 
 const app = express();
 const PORT = 3000;
@@ -23,6 +24,14 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
+app.use(session({
+    secret: "secret pass",
+    saveUninitialized: false,
+    resave: false,
+    cookie: {
+        maxAge: 60 * 1000 * 60 // 1 hour
+    }
+}));
 // #endregion
 
 // #region GET Routes
@@ -35,6 +44,7 @@ app.get("/signup", (req, res) => {
 });
 
 app.get('/', (req, res) => {
+    console.log(req.session,'\n',req.session.id);
     res.render("login");
 });
 
@@ -117,5 +127,4 @@ db.connect((err) => {
     }
     console.log("Connected to the MySQL database.");
 });
-
 // #endregion
