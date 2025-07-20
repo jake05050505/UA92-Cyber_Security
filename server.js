@@ -76,13 +76,13 @@ app.post("/signup", (req, res) => {
     const { email, username, password } = req.body;
 
     if(!email || !username || !password){
-        return res.status(400).render("signup", { error: "Please fill all fields" });
+        return res.status(400).render("signup", { error: "Please fill all fields", env, viewcount: req.session.viewcount });
     }
     if(email.length > 64 || username.length > 32 || password.length > 32){
-        return res.status(400).render("signup", { error: "Email/Username/Password too long, please try again"}); // Should only show up if the user edits the html to remove the maxlength attribute
+        return res.status(400).render("signup", { error: "Email/Username/Password too long, please try again", env, viewcount: req.session.viewcount }); // Should only show up if the user edits the html to remove the maxlength attribute
     }
     if (!email.includes('@') || !email.includes('.')){
-        return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
+        return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)", env, viewcount: req.session.viewcount });
     }
 
     const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "');";
@@ -90,7 +90,7 @@ app.post("/signup", (req, res) => {
     db.query(insertUserQuery, (err) => {
         if (err && err.code === "ER_DUP_ENTRY") {
             console.log("Duplicate username or email");
-            return res.status(400).render("signup", { error: "A user with this username/email already exists" });
+            return res.status(400).render("signup", { error: "A user with this username/email already exists", env, viewcount: req.session.viewcount });
         } else if(err){throw err;}
 
         req.session.username = username;
@@ -104,15 +104,17 @@ app.post("/login", (req, res) => {
     const password = req.body.password;
 
     if(!username || !password){
-        return res.status(400).render("login", { error: "Please fill all fields" });
+        return res.status(400).render("login", { error: "Please fill all fields", env, viewcount: req.session.viewcount });
     }
 
     const checkUserQuery = "select * from users where username = '" + username + "';";
     db.query(checkUserQuery, (err, result) => {
-        if(err){throw err;}
+        if(err && err.code == "ER_PARSE_ERROR"){
+            return res.status(500).render("login", { error: "ER_PARSE_ERROR", env, viewcount: req.session.viewcount });
+        } else if(err){throw err;}
 
         if (result.length == 0){
-            return res.status(200).render("login", { error: "Invalid username or password" });
+            return res.status(200).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
         }
 
         username = result[0].username;
@@ -123,7 +125,7 @@ app.post("/login", (req, res) => {
             return res.redirect(`/dashboard`);
         }
         else{
-            return res.status(200).render("login", { error: "Invalid username or password" });
+            return res.status(200).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
         }
     });
 
