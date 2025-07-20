@@ -13,3 +13,14 @@ body {
 .underline {
     text-decoration: underline;
 }
+
+/* debug styles */
+
+debug {
+    margin: 1em;
+    /* position: relative; */
+}
+
+nav,viewcount {
+    margin: 1em;
+}

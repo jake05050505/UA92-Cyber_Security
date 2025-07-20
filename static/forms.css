@@ -4,20 +4,24 @@ body {
 }
 
 #idx {
-    display: block;
-    justify-content: normal;
+    position: absolute;
+    left: 2em;
+    top: 1em;
 }
 
 form {
-    position: relative;
-    border-radius: 0.7em;
-    padding: 1em;
+    /* centering and resizing */
+    position: absolute;
+    top: 50%;
+    left: 50%;
     height: auto;
     width: max-content;
+    transform: translate(-50%, -50%) scale(1.5);
+    transform-origin: center;
+    /* styling */
+    padding: 1em;
     background-color: rgb(106, 104, 241);
-    scale: 1.5;
-    left: -10vw;
-    top: 30vh;
+    border-radius: 0.7em;
 }
 
 button,
