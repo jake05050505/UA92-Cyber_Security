@@ -13,3 +13,7 @@ body {
 .underline {
     text-decoration: underline;
 }
+
+debug {
+    margin: 2em;
+}
