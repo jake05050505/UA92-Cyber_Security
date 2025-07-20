@@ -8,6 +8,7 @@ const env = "test"; // "test" will render debug info such as partials/index, par
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
+const bcrypt = require("bcrypt");
 
 const app = express();
 const PORT = 3000;
