@@ -37,7 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
 app.use(session({
-    secret: "secret password", // Not safe - easily guessable
+    secret: "secret password", // Not safe - easily guessable, users can forge cookies and sessions if they know this, such as by setting req.session.username = "admin"
     saveUninitialized: true,
     resave: false,
     cookie: {
@@ -70,13 +70,16 @@ app.get("/login", render_login);
 
 app.get("/dashboard", (req, res) => {
     req.session.viewcount = (req.session.viewcount || 0) + 1;
-    const username = req.session.username || undefined;
+    const username = req.session.username || undefined; // if req.session.username is undefined, user should be redirected to login page
+    if(typeof username === "undefined"){
+        return res.redirect("/login");
+    }
     return res.render("dashboard", { username, env, viewcount: req.session.viewcount });
 });
 
-app.get('/logout', (req, res) => {
+app.get("/logout", (req, res) => {
     delete req.session.username;
-    res.redirect('/login');
+    res.redirect("/login");
 });
 // #endregion
 
@@ -85,13 +88,13 @@ app.post("/signup", (req, res) => {
     const { email, username, password } = req.body;
 
     if(!email || !username || !password){
-        return res.status(400).render("signup", { error: "Please fill all fields" });
+        return res.status(400).render("signup", { error: "Please fill all fields", env, viewcount: req.session.viewcount });
     }
     if(email.length > 64 || username.length > 32 || password.length > 32){
-        return res.status(400).render("signup", { error: "Email/Username/Password too long, please try again"}); // Should only show up if the user edits the html to remove the maxlength attribute
+        return res.status(400).render("signup", { error: "Email/Username/Password too long, please try again", env, viewcount: req.session.viewcount }); // Should only show up if the user edits the html to remove the maxlength attribute
     }
     if (!email.includes('@') || !email.includes('.')){
-        return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
+        return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)", env, viewcount: req.session.viewcount });
     }
 
     bcrypt.hash(password, 10, (err, hashed_password) => {
@@ -117,16 +120,18 @@ app.post("/login", (req, res) => {
     const password = req.body.password;
 
     if(!username || !password){
-        return res.status(400).render("login", { error: "Please fill all fields" });
+        return res.status(400).render("login", { error: "Please fill all fields", env, viewcount: req.session.viewcount });
     }
 
     const checkUserQuery = "select username, password from users where username = ?;";
     
     db.query(checkUserQuery, username, (err, result) => {
-        if(err){throw err;}
+        if(err && err.code == "ER_PARSE_ERROR"){
+            return res.status(500).render("login", { error: "ER_PARSE_ERROR", env, viewcount: req.session.viewcount });
+        } else if(err){throw err;}
 
         if (result.length == 0){
-            return res.status(200).render("login", { error: "Invalid username or password" });
+            return res.status(200).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
         }
 
         username = result[0].username;
@@ -137,7 +142,7 @@ app.post("/login", (req, res) => {
 
             if(result){
                 req.session.username = username;
-                return res.redirect(`/dashboard`);
+                return res.redirect("/dashboard");
             }
             else{
                 return res.status(200).render("login", { error: "Invalid username or password" });
@@ -159,7 +164,7 @@ app.post("/login", (req, res) => {
 // #region Connections
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-    if(env=="test"){console.log("Debugging enabled, see env variable to toggle")}
+    if(env=="test"){console.log("Debugging enabled, see env variable to toggle");}
 });
 
 db.connect((err) => {

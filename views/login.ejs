@@ -1,5 +1,5 @@
 <% if (typeof error !=='undefined' ) { %>
-    <p style="color:red;">
+    <p class="error">
         <%= error %>
     </p>
 <% } %>
@@ -25,11 +25,11 @@
 
         <form name="login" action="/login" method="POST">
             <label for="username">Username:</label><br>
-            <input type="text" name="username" id="username" placeholder="Username" required
-                autocomplete="username" maxlength="32"><br>
+            <input type="text" name="username" id="username" placeholder="Username" required autocomplete="username" maxlength="32" value=""><br>
+
             <label for="password">Password:</label><br>
-            <input type="password" name="password" id="password" placeholder="Password" required
-                autocomplete="current-password" maxlength="32"><br>
+            <input type="password" name="password" id="password" placeholder="Password" required autocomplete="current-password" maxlength="32"><br>
+
             <button type="submit">Log in</button>
             <p> or <a href="/signup">Create an Account</a></p>
         </form>
