@@ -100,7 +100,7 @@ app.post("/login", (req, res) => {
     const checkUserQuery = "select * from users where username = '" + username + "';";
     db.query(checkUserQuery, (err, result) => {
         if(err){throw err;}
-        
+
         if (result.length == 0){
             return res.status(200).render("login", { error: "Invalid username or password" });
         }
@@ -122,7 +122,7 @@ app.post("/login", (req, res) => {
 // #region Connections
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-    if(env=="test"){console.log(`debugging enabled, see env variable to toggle`)}
+    if(env=="test"){console.log("debugging enabled, see env variable to toggle")}
 });
 
 db.connect((err) => {
