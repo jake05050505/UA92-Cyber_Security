@@ -17,7 +17,7 @@
         <h1>Dashboard</h1>
         <% if (typeof(username) !== 'undefined'){ %>
             <p>Logged in as: </p><p class="underline"><%= username %></p>
-            <p><a method="POST" href="/logout">Log Out</a></p>
+            <p><a href="/logout">Log Out</a></p>
         <% } else { %>
             <p>Not logged in.</p>
         <% } %>
