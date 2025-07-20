@@ -25,11 +25,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
 app.use(session({
-    secret: "secret pass",
-    saveUninitialized: false,
+    secret: "secret password", // Not safe - easily guessable
+    saveUninitialized: true,
     resave: false,
     cookie: {
-        maxAge: 60 * 1000 * 60 // 1 hour
+        maxAge: 60 * 1000 * 60, // 1 hour
+        secure: false
     }
 }));
 // #endregion
