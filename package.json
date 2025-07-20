@@ -4,11 +4,7 @@
     "ej": "^1.0.4",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
-<<<<<<< HEAD
-    "express-rate-limit": "^8.0.1",
-=======
     "express-session": "^1.18.2",
->>>>>>> unsafe-final
     "mysql2": "^3.14.0"
   },
   "name": "express-sql-app",
