@@ -14,6 +14,13 @@ body {
     text-decoration: underline;
 }
 
+/* debug styles */
+
 debug {
-    margin: 2em;
+    margin: 1em;
+    /* position: relative; */
+}
+
+nav,viewcount {
+    margin: 1em;
 }
