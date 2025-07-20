@@ -85,7 +85,7 @@ app.post("/signup", (req, res) => {
         return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
     }
 
-    const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "')";
+    const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES ('" + email + "', '" + username + "', '" + password + "');";
 
     db.query(insertUserQuery, (err) => {
         if (err && err.code === "ER_DUP_ENTRY") {
