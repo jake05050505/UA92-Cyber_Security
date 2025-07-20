@@ -17,7 +17,9 @@
     </head>
 
     <body>
+        <% if(env == test)
         <%- include("partials/index.ejs") %>
+        <%- include("partials/viewcount.ejs") %>
         <main>
             <form name="signup" action="/signup" method="POST">
                 <label for="email">Email:</label><br>

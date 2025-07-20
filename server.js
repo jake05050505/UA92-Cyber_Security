@@ -2,6 +2,9 @@
 // (https://dull-ceres-c2a.notion.site/Cyber-Security-Risk-Extra-Material-1aa408bc87ac80c5a62be0bc3ee23023)
 
 // #region configs
+// set environment type (:test/prod)
+const env = "test" // "test" will render debug info such as partials/index, partials/viewcount, prod is purely semantic.
+
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
@@ -14,7 +17,7 @@ const mysql = require("mysql2");
 const db = mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "password", // in a production environment (not localhost) this should be a strong password to prevent brute force attacks.
+    password: "password", // in a production environment (not localhost) this should be a strong password to prevent brute force attacks. This will remain unsafe, including in the secure branch (should be origin/master).
     database: "accounts"
 });
 
@@ -37,21 +40,21 @@ app.use(session({
 
 // #region GET Routes
 app.get("/index", (req, res) => {
-    return res.render("index");
+    return res.render("index", { env });
 });
 
 app.get("/signup", (req, res) => {
-    return res.render("signup");
+    return res.render("signup", { env });
 });
 
-app.get('/', (req, res) => {
+// helper function to ensure app.get("/") and app.get("/login") do the same thing
+function render_login(req, res){
     console.log(req.session,'\n',req.session.id);
-    res.render("login");
-});
+    return res.render("login", { env });
+}
 
-app.get("/login", (req, res) => {
-    return res.render("login");
-});
+app.get('/', render_login);
+app.get("/login", render_login);
 
 app.get("/dashboard", (req, res) => {
     const username = req.query.username || undefined;
@@ -119,6 +122,7 @@ app.post("/login", (req, res) => {
 // #region Connections
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    if(env=="test"){console.log(`debugging enabled, see env variable to toggle`)}
 });
 
 db.connect((err) => {
