@@ -3,7 +3,7 @@
 
 // #region configs
 // set environment type (:test/prod)
-const env = "test" // "test" will render debug info such as partials/index, partials/viewcount, prod is purely semantic.
+const env = "test"; // "test" will render debug info such as partials/index, partials/viewcount, prod is purely semantic.
 
 const express = require("express");
 const path = require("path");
@@ -40,6 +40,7 @@ app.use(session({
 
 // #region GET Routes
 app.get("/index", (req, res) => {
+    req.session.username = (req.session.username || 0);
     return res.render("index", { env, viewcount: req.session.viewcount });
 });
 
@@ -60,8 +61,13 @@ app.get("/login", render_login);
 
 app.get("/dashboard", (req, res) => {
     req.session.viewcount = (req.session.viewcount || 0) + 1;
-    const username = req.query.username || undefined;
+    const username = req.session.username || undefined;
     return res.render("dashboard", { username, env, viewcount: req.session.viewcount });
+});
+
+app.get('/logout', (req, res) => {
+    delete req.session.username;
+    res.redirect('/login');
 });
 // #endregion
 
@@ -87,7 +93,8 @@ app.post("/signup", (req, res) => {
             return res.status(400).render("signup", { error: "A user with this username/email already exists" });
         } else if(err){throw err;}
 
-        return res.status(200).redirect(`/dashboard?username=${username}`);
+        req.session.username = username;
+        return res.status(200).redirect(`/dashboard`);
     });
 
 });
@@ -108,11 +115,12 @@ app.post("/login", (req, res) => {
             return res.status(200).render("login", { error: "Invalid username or password" });
         }
 
-        username = result[0].username
+        username = result[0].username;
         stored_password = result[0].password;
 
         if(password == stored_password){
-            return res.redirect(`/dashboard?username=${username}`)
+            req.session.username = username;
+            return res.redirect(`/dashboard`)
         }
         else{
             return res.status(200).render("login", { error: "Invalid username or password" });
