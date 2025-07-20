@@ -101,13 +101,13 @@ app.post("/signup", (req, res) => {
         if(err){throw err;}
 
         const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES (?,?,?)";
-    
+
         db.query(insertUserQuery, [email, username, hashed_password], (err) => {
             if (err && err.code === "ER_DUP_ENTRY") {
                 console.log("Duplicate username or email");
                 return res.status(400).render("signup", { error: "A user with this username/email already exists" });
             } else if(err){throw err;}
-    
+
             req.session.username = username;
             return res.status(200).redirect(`/dashboard`);
         });
@@ -124,7 +124,7 @@ app.post("/login", (req, res) => {
     }
 
     const checkUserQuery = "select username, password from users where username = ?;";
-    
+
     db.query(checkUserQuery, username, (err, result) => {
         if(err && err.code == "ER_PARSE_ERROR"){
             return res.status(500).render("login", { error: "ER_PARSE_ERROR", env, viewcount: req.session.viewcount });
