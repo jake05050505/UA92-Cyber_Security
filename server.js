@@ -61,7 +61,7 @@ app.get("/login", render_login);
 
 app.get("/dashboard", (req, res) => {
     req.session.viewcount = (req.session.viewcount || 0) + 1;
-    const username = req.session.username || undefined;
+    const username = req.session.username || undefined; // if req.session.username is undefined, user should be redirected to login page
     return res.render("dashboard", { username, env, viewcount: req.session.viewcount });
 });
 
