@@ -40,25 +40,28 @@ app.use(session({
 
 // #region GET Routes
 app.get("/index", (req, res) => {
-    return res.render("index", { env });
+    return res.render("index", { env, viewcount: req.session.viewcount });
 });
 
 app.get("/signup", (req, res) => {
-    return res.render("signup", { env });
+    req.session.viewcount = (req.session.viewcount || 0) + 1;
+    return res.render("signup", { env, viewcount: req.session.viewcount });
 });
 
 // helper function to ensure app.get("/") and app.get("/login") do the same thing
 function render_login(req, res){
+    req.session.viewcount = (req.session.viewcount || 0) + 1;
     console.log(req.session,'\n',req.session.id);
-    return res.render("login", { env });
+    return res.render("login", { env, viewcount: req.session.viewcount });
 }
 
 app.get('/', render_login);
 app.get("/login", render_login);
 
 app.get("/dashboard", (req, res) => {
+    req.session.viewcount = (req.session.viewcount || 0) + 1;
     const username = req.query.username || undefined;
-    return res.render("dashboard", { username });
+    return res.render("dashboard", { username, env, viewcount: req.session.viewcount });
 });
 // #endregion
 
@@ -122,7 +125,7 @@ app.post("/login", (req, res) => {
 // #region Connections
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-    if(env=="test"){console.log("debugging enabled, see env variable to toggle")}
+    if(env=="test"){console.log("Debugging enabled, see env variable to toggle")}
 });
 
 db.connect((err) => {
