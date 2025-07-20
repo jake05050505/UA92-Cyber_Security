@@ -8,6 +8,7 @@ const env = "test"; // "test" will render debug info such as partials/index, par
 const express = require("express");
 const path = require("path");
 const session = require("express-session");
+const rateLimit = require("express-rate-limit");
 const bcrypt = require("bcrypt");
 
 const app = express();
@@ -27,7 +28,7 @@ const db = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "password", // in a production environment (not localhost) this should be a strong password to prevent brute force attacks. This will remain unsafe, including in the secure branch (should be origin/master).
-    database: "accounts"
+    database: "secure"
 });
 
 app.set("view engine", "ejs");
@@ -45,6 +46,7 @@ app.use(session({
         secure: false
     }
 }));
+app.use(limiter);
 // #endregion
 
 // #region GET Routes
@@ -135,7 +137,7 @@ app.post("/login", (req, res) => {
         }
 
         username = result[0].username;
-        stored_hash = result[0].password;
+        hashed_password = result[0].password;
 
         bcrypt.compare(password, hashed_password, (err, result) => {
             if(err){throw err;}
@@ -145,7 +147,7 @@ app.post("/login", (req, res) => {
                 return res.redirect("/dashboard");
             }
             else{
-                return res.status(200).render("login", { error: "Invalid username or password" });
+                return res.status(200).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
             }
         });
 
