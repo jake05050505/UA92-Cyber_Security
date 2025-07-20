@@ -28,7 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "static")));
 app.use(session({
-    secret: "secret password", // Not safe - easily guessable
+    secret: "secret password", // Not safe - easily guessable, users can forge cookies and sessions if they know this, such as by setting req.session.username = "admin"
     saveUninitialized: true,
     resave: false,
     cookie: {
@@ -62,12 +62,15 @@ app.get("/login", render_login);
 app.get("/dashboard", (req, res) => {
     req.session.viewcount = (req.session.viewcount || 0) + 1;
     const username = req.session.username || undefined; // if req.session.username is undefined, user should be redirected to login page
+    if(typeof username === "undefined"){
+        return res.redirect("/login");
+    }
     return res.render("dashboard", { username, env, viewcount: req.session.viewcount });
 });
 
-app.get('/logout', (req, res) => {
+app.get("/logout", (req, res) => {
     delete req.session.username;
-    res.redirect('/login');
+    res.redirect("/login");
 });
 // #endregion
 
