@@ -97,7 +97,7 @@ app.post("/signup", (req, res) => {
         } else if(err){throw err;}
 
         req.session.username = username;
-        return res.status(200).redirect(`/dashboard`);
+        return res.status(200).redirect("/dashboard");
     });
 
 });
@@ -125,7 +125,7 @@ app.post("/login", (req, res) => {
 
         if(password == stored_password){
             req.session.username = username;
-            return res.redirect(`/dashboard`);
+            return res.redirect("/dashboard");
         }
         else{
             return res.status(200).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
