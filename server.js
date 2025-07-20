@@ -16,8 +16,8 @@ const PORT = 3000;
 
 // Limiter config - copied from https://www.npmjs.com/package/express-rate-limit, comments edited
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 mins
-	limit: 100, // user can make 100 requests in 15 minute window
+    windowMs: 1000 * 60 * 15, // 15 mins
+	limit: 50, // user can make 100 requests in 15 minute window
 	// standardHeaders: 'draft-8',
 	// legacyHeaders: false,
 });
