@@ -94,16 +94,20 @@ app.post("/signup", (req, res) => {
         return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)" });
     }
 
-    const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES (?,?,?)";
+    bcrypt.hash(password, 10, (err, hashed_password) => {
+        if(err){throw err;}
 
-    db.query(insertUserQuery, [email, username, password], (err) => {
-        if (err && err.code === "ER_DUP_ENTRY") {
-            console.log("Duplicate username or email");
-            return res.status(400).render("signup", { error: "A user with this username/email already exists" });
-        } else if(err){throw err;}
-
-        req.session.username = username;
-        return res.status(200).redirect(`/dashboard`);
+        const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES (?,?,?)";
+    
+        db.query(insertUserQuery, [email, username, hashed_password], (err) => {
+            if (err && err.code === "ER_DUP_ENTRY") {
+                console.log("Duplicate username or email");
+                return res.status(400).render("signup", { error: "A user with this username/email already exists" });
+            } else if(err){throw err;}
+    
+            req.session.username = username;
+            return res.status(200).redirect(`/dashboard`);
+        });
     });
 
 });
@@ -126,15 +130,27 @@ app.post("/login", (req, res) => {
         }
 
         username = result[0].username;
-        stored_password = result[0].password;
+        stored_hash = result[0].password;
 
-        if(password == stored_password){
-            req.session.username = username;
-            return res.redirect(`/dashboard`)
-        }
-        else{
-            return res.status(200).render("login", { error: "Invalid username or password" });
-        }
+        bcrypt.compare(password, hashed_password, (err, result) => {
+            if(err){throw err;}
+
+            if(result){
+                req.session.username = username;
+                return res.redirect(`/dashboard`);
+            }
+            else{
+                return res.status(200).render("login", { error: "Invalid username or password" });
+            }
+        });
+
+        // if(password == stored_password){
+        //     req.session.username = username;
+        //     return res.redirect(`/dashboard`)
+        // }
+        // else{
+        //     return res.status(200).render("login", { error: "Invalid username or password" });
+        // }
     });
 
 });
