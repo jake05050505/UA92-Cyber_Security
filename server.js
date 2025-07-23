@@ -2,7 +2,7 @@
 // (https://dull-ceres-c2a.notion.site/Cyber-Security-Risk-Extra-Material-1aa408bc87ac80c5a62be0bc3ee23023)
 
 // #region configs
-// set environment type (:test/prod)
+// set environment type (test/prod)
 const env = "test"; // "test" will render debug info such as partials/index, partials/viewcount, prod is purely semantic.
 
 const express = require("express");
