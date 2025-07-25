@@ -3,7 +3,7 @@
 
 // #region configs
 // set environment type (test/prod)
-const env = "test"; // "test" will render debug info such as partials/index, partials/viewcount, prod is purely semantic.
+const env = "prod"; // "test" will render debug info such as partials/index, partials/viewcount, prod is purely semantic.
 
 const express = require("express");
 const path = require("path");
@@ -15,11 +15,16 @@ const app = express();
 const PORT = 3000;
 
 // Limiter config - copied from https://www.npmjs.com/package/express-rate-limit, comments edited
-const limiter = rateLimit({
-    windowMs: 1000 * 60 * 15, // 15 mins
-	limit: 50, // user can make 100 requests in 15 minute window
-	// standardHeaders: 'draft-8',
-	// legacyHeaders: false,
+const signup_limiter = rateLimit({
+    windowMs: 5 * 1000*60, // 5 mins
+	limit: 5, // user can make 5 signup attempts in 5 minute window
+    message: "Too many signup attempts, please try again later."
+});
+
+const login_limiter = rateLimit({
+    windowMs: 10 * 1000*60, // 15 mins
+	limit: 5, // user can make 5 login attempts in 10 minute window
+    message: "Too many login attempts, please try again later.",
 });
 
 // database credentials
@@ -46,13 +51,14 @@ app.use(session({
         secure: false
     }
 }));
-app.use(limiter);
+// app.use(limiter);
 // #endregion
 
 // #region GET Routes
 app.get("/index", (req, res) => {
     req.session.username = (req.session.username || 0);
-    return res.render("index", { env, viewcount: req.session.viewcount });
+    if(env=="test"){ return res.render("index", { env, viewcount: req.session.viewcount }); }
+    else{ return res.redirect("/"); }
 });
 
 app.get("/signup", (req, res) => {
@@ -86,7 +92,7 @@ app.get("/logout", (req, res) => {
 // #endregion
 
 // #region POST Routes
-app.post("/signup", (req, res) => {
+app.post("/signup", signup_limiter, (req, res) => {
     const { email, username, password } = req.body;
 
     if(!email || !username || !password){
@@ -117,7 +123,7 @@ app.post("/signup", (req, res) => {
 
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", login_limiter, (req, res) => {
     let username = req.body.username;
     const password = req.body.password;
 
