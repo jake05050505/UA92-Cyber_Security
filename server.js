@@ -69,7 +69,6 @@ app.get("/signup", (req, res) => {
 // helper function to ensure app.get("/") and app.get("/login") do the same thing
 function render_login(req, res){
     req.session.viewcount = (req.session.viewcount || 0) + 1;
-    console.log(req.session,'\n',req.session.id);
     return res.render("login", { env, viewcount: req.session.viewcount });
 }
 
@@ -111,8 +110,8 @@ app.post("/signup", signup_limiter, (req, res) => {
         const insertUserQuery = "INSERT INTO `users` (`email`, `username`, `password`) VALUES (?,?,?)";
 
         db.query(insertUserQuery, [email, username, hashed_password], (err) => {
+            // tried to insert username/email which already exists
             if (err && err.code === "ER_DUP_ENTRY") {
-                console.log("Duplicate username or email");
                 return res.status(400).render("signup", { error: "A user with this username/email already exists" });
             } else if(err){throw err;}
 
