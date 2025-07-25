@@ -113,11 +113,11 @@ app.post("/login", (req, res) => {
     const checkUserQuery = "select * from users where username = '" + username + "';";
     db.query(checkUserQuery, (err, result) => {
         if(err && err.code == "ER_PARSE_ERROR"){
-            return res.status(500).render("login", { error: "ER_PARSE_ERROR", env, viewcount: req.session.viewcount });
+            return res.status(400).render("login", { error: "ER_PARSE_ERROR", env, viewcount: req.session.viewcount });
         } else if(err){throw err;}
 
         if (result.length == 0){
-            return res.status(200).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
+            return res.status(401).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
         }
 
         username = result[0].username;
@@ -125,10 +125,10 @@ app.post("/login", (req, res) => {
 
         if(password == stored_password){
             req.session.username = username;
-            return res.redirect("/dashboard");
+            return res.status(200).redirect("/dashboard");
         }
         else{
-            return res.status(200).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
+            return res.status(401).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
         }
     });
 
