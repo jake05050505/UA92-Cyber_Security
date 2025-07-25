@@ -111,6 +111,7 @@ app.post("/login", (req, res) => {
 
     const checkUserQuery = "select * from users where username = '" + username + "';";
     db.query(checkUserQuery, (err, result) => {
+        // tried to insert username/email which already exists
         if(err && err.code == "ER_PARSE_ERROR"){
             return res.status(400).render("login", { error: "ER_PARSE_ERROR", env, viewcount: req.session.viewcount });
         } else if(err){throw err;}
