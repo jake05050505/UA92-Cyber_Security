@@ -77,6 +77,7 @@ app.get("/logout", (req, res) => {
 app.post("/signup", (req, res) => {
     const { email, username, password } = req.body;
 
+    // Backend validation
     if(!email || !username || !password){
         return res.status(400).render("signup", { error: "Please fill all fields", env, viewcount: req.session.viewcount });
     }
