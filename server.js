@@ -94,11 +94,12 @@ app.get("/logout", (req, res) => {
 app.post("/signup", signup_limiter, (req, res) => {
     const { email, username, password } = req.body;
 
+    // Backend validation
     if(!email || !username || !password){
         return res.status(400).render("signup", { error: "Please fill all fields", env, viewcount: req.session.viewcount });
     }
     if(email.length > 64 || username.length > 32 || password.length > 32){
-        return res.status(400).render("signup", { error: "Email/Username/Password too long, please try again", env, viewcount: req.session.viewcount }); // Should only show up if the user edits the html to remove the maxlength attribute
+        return res.status(400).render("signup", { error: "Email/Username/Password too long, please try again", env, viewcount: req.session.viewcount }); // Should only be possible if the user edits the html to remove the maxlength attribute
     }
     if (!email.includes('@') || !email.includes('.')){
         return res.status(400).render("signup", { error: "Email is not a valid format (user@example.com)", env, viewcount: req.session.viewcount });
