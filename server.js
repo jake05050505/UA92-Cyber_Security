@@ -22,8 +22,8 @@ const signup_limiter = rateLimit({
 });
 
 const login_limiter = rateLimit({
-    windowMs: 10 * 1000*60, // 15 mins
-	limit: 5, // user can make 5 login attempts in 10 minute window
+    windowMs: 15 * 1000*60, // 15 mins
+	limit: 5, // user can make 5 login attempts in 15 minute window
     message: "Too many login attempts, please try again later.",
 });
 
