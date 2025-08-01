@@ -113,7 +113,7 @@ app.post("/signup", signup_limiter, (req, res) => {
         db.query(insertUserQuery, [email, username, hashed_password], (err) => {
             // tried to insert username/email which already exists
             if (err && err.code === "ER_DUP_ENTRY") {
-                return res.status(400).render("signup", { error: "A user with this username/email already exists" });
+                return res.status(400).render("signup", { error: "A user with this username/email already exists", env, viewcount: req.session.viewcount });
             } else if(err){throw err;}
 
             req.session.username = username;
@@ -135,11 +135,11 @@ app.post("/login", login_limiter, (req, res) => {
 
     db.query(checkUserQuery, username, (err, result) => {
         if(err && err.code == "ER_PARSE_ERROR"){
-            return res.status(500).render("login", { error: "ER_PARSE_ERROR", env, viewcount: req.session.viewcount });
+            return res.status(500).render("login", { error: "Internal Server Error", env, viewcount: req.session.viewcount });
         } else if(err){throw err;}
 
         if (result.length == 0){
-            return res.status(200).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
+            return res.status(401).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
         }
 
         username = result[0].username;
