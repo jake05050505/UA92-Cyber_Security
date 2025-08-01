@@ -153,17 +153,9 @@ app.post("/login", login_limiter, (req, res) => {
                 return res.redirect("/dashboard");
             }
             else{
-                return res.status(200).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
+                return res.status(401).render("login", { error: "Invalid username or password", env, viewcount: req.session.viewcount });
             }
         });
-
-        // if(password == stored_password){
-        //     req.session.username = username;
-        //     return res.redirect(`/dashboard`)
-        // }
-        // else{
-        //     return res.status(200).render("login", { error: "Invalid username or password" });
-        // }
     });
 
 });
