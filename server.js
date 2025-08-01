@@ -97,13 +97,12 @@ app.post("/signup", (req, res) => {
         } else if(err){throw err;}
 
         req.session.username = username;
-        return res.status(200).redirect("/dashboard");
+        return res.status(302).redirect("/dashboard");
     });
 
 });
 
 app.post("/login", (req, res) => {
-    console.log("login attempt")
     let username = req.body.username;
     const password = req.body.password;
 
